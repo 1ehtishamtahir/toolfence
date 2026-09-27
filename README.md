@@ -27,6 +27,7 @@
 [**Dashboard**](#-security-dashboard) •
 [**Benchmark**](#-benchmark) •
 [**Quick Start**](#-quick-start) •
+[**Deployment**](#-deployment) •
 [**Security Model**](#-security-model)
 
 </div>
@@ -521,6 +522,44 @@ http://127.0.0.1:8000/docs
 
 ---
 
+## ☁️ Deployment
+
+ToolFence is deployed as two independently hosted services.
+
+<div align="center">
+
+| Service | Host | URL |
+|---|---|---|
+| Frontend (React) | **Netlify** | <https://stunning-sfogliatella-cb2a5b.netlify.app/> |
+| Observability API (FastAPI) | **Vercel** | <https://toolfence-7cy4-isuk25ybf-1ehtishamtahir-7813s-projects.vercel.app> |
+
+</div>
+
+### Vercel (backend)
+
+Zero-config Python: the entrypoint lives in `pyproject.toml`, dependencies come from `requirements.txt`, and `.vercelignore` keeps the frontend out of the function bundle.
+
+Environment variables (project → Settings → Environment Variables):
+
+| Key | Value |
+|---|---|
+| `TOOLFENCE_POLICY_SNAPSHOT_PATH` | `deploy/seed/active_policy.json` |
+| `TOOLFENCE_BENCHMARK_PATH` | `deploy/seed/benchmark_report.json` |
+| `TOOLFENCE_AUDIT_PATH` | `deploy/seed/audit.jsonl` |
+| `TOOLFENCE_CORS_ORIGINS` | comma-separated allowed origins, e.g. the Netlify URL |
+
+> `runtime/` is gitignored, so the deployment reads the committed copies under `deploy/seed/`. Deployment Protection must be disabled (or the Production URL used) for public API access.
+
+### Netlify (frontend)
+
+Build config lives in the root `netlify.toml` (`base = "frontend"`, SPA redirect included).
+
+| Key | Value |
+|---|---|
+| `VITE_API_BASE_URL` | the Vercel API origin |
+
+---
+
 ## 🛠 Tech Stack
 
 <div align="center">
@@ -544,12 +583,16 @@ http://127.0.0.1:8000/docs
 
 <img src="https://img.shields.io/badge/React%20Router-Routing-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white" alt="React Router" />
 <img src="https://img.shields.io/badge/TanStack%20Query-Data%20Fetching-FF4154?style=for-the-badge&logo=reactquery&logoColor=white" alt="TanStack Query" />
-<img src="https://img.shields.io/badge/Motion-UI%20Motion-FFF312?style=for-the-badge&labelColor=111827&logoColor=111827" alt="Motion" />
-<img src="https://img.shields.io/badge/Recharts-Data%20Visualization-22B5BF?style=for-the-badge&labelColor=111827" alt="Recharts" />
+<img src="https://img.shields.io/badge/Tailwind%20CSS-UI%20Tokens-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
 
 ### Platform & Workflow
 
 <img src="https://skillicons.dev/icons?i=git,github,vscode" alt="Git GitHub VS Code" />
+
+<br/><br/>
+
+<img src="https://img.shields.io/badge/Vercel-Backend%20Host-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+<img src="https://img.shields.io/badge/Netlify-Frontend%20Host-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" alt="Netlify" />
 
 <br/><br/>
 
@@ -691,6 +734,12 @@ toolfence/
 │   ├── capabilities.json
 │   └── golden_task.json
 │
+├── deploy/
+│   └── seed/
+│       ├── active_policy.json
+│       ├── audit.jsonl
+│       └── benchmark_report.json
+│
 ├── frontend/
 │   ├── src/
 │   │   ├── app/
@@ -703,8 +752,7 @@ toolfence/
 │   │   │   └── dashboard/
 │   │   ├── styles/
 │   │   └── types/
-│   ├── vite.config.ts
-│   └── vercel.json
+│   └── vite.config.ts
 │
 ├── mock_mcp/
 ├── runtime/
@@ -713,7 +761,10 @@ toolfence/
 │   └── benchmark_report.json
 │
 ├── tests/
+├── .vercelignore
+├── netlify.toml
 ├── pyproject.toml
+├── requirements.txt
 └── README.md
 ```
 
