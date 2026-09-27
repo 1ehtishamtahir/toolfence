@@ -11,26 +11,28 @@ import { Navbar } from "@/components/shared/Navbar"
 
 export function LandingPage() {
   return (
-    <main className="tf-page min-h-screen overflow-x-hidden">
+    <div className="min-h-screen bg-page">
       <Navbar />
 
-      <Hero />
+      <main className="pt-14">
+        <Hero />
 
-      <ProblemSection />
+        <ProblemSection />
 
-      <CapabilityBoundary />
+        <HowItWorks />
 
-      <HowItWorks />
+        <CapabilityBoundary />
 
-      <SecurityDemo />
+        <SecurityDemo />
 
-      <ArchitectureSection />
+        <ArchitectureSection />
 
-      <BenchmarkSection />
+        <BenchmarkSection />
 
-      <CTASection />
+        <CTASection />
+      </main>
 
       <Footer />
-    </main>
+    </div>
   )
 }

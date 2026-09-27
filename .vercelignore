@@ -1,0 +1,10 @@
+# Exclude development-only files from the Python function bundle.
+.venv/**
+frontend/**
+tests/**
+benchmark/**
+.bob/**
+runtime/**
+.pytest_cache/**
+**/__pycache__/**
+*.egg-info/**

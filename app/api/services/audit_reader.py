@@ -20,7 +20,12 @@ def get_audit_path() -> Path:
     path = Path(configured_path)
 
     if not path.is_absolute():
-        path = get_project_root() / path
+        resolved = get_project_root() / path
+        if not resolved.exists() and (
+            Path.cwd() / path
+        ).exists():
+            resolved = Path.cwd() / path
+        path = resolved
 
     return path
 

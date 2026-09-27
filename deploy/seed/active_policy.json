@@ -1,0 +1,43 @@
+{
+  "activated_at": "2026-09-27T05:14:43.737971+00:00",
+  "allowed": [
+    {
+      "resource": "feature/BUG-17",
+      "resource_type": "branch",
+      "tool": "ci.run"
+    },
+    {
+      "resource": "feature/BUG-17",
+      "resource_type": "branch",
+      "tool": "ci.status"
+    },
+    {
+      "resource": "feature/BUG-17",
+      "resource_type": "branch",
+      "tool": "pull_request.create"
+    },
+    {
+      "resource": "project/*",
+      "resource_type": "repo_path",
+      "tool": "repo.read"
+    },
+    {
+      "resource": "project/src/*",
+      "resource_type": "repo_path",
+      "tool": "repo.write"
+    },
+    {
+      "resource": "BUG-17",
+      "resource_type": "ticket_id",
+      "tool": "ticket.get"
+    }
+  ],
+  "end_reason": null,
+  "ended_at": null,
+  "expires_at": null,
+  "policy_id": "290295c2680ccfbf0b6fd7ae6761aa090984bbe698dc29420959f97120f57b7a",
+  "schema_version": "1.0",
+  "state": "ACTIVE",
+  "task": "Fix BUG-17, run CI, and create a pull request.",
+  "task_id": "BUG-17-FIX"
+}

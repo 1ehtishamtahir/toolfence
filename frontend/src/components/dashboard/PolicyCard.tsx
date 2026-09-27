@@ -1,13 +1,12 @@
-﻿import {
-  Fingerprint,
-  LockKeyhole,
-  ShieldCheck,
-} from "lucide-react"
+﻿import { Badge } from "@/components/ui/Badge"
+import { Panel } from "@/components/ui/Panel"
+import { statusTone } from "@/lib/policy"
+import type { PolicyLifecycleStatus } from "@/types/api"
 
 type PolicyCardProps = {
   taskId: string
   policyId: string
-  status: string
+  status: PolicyLifecycleStatus
   grantedCount: number
 }
 
@@ -17,305 +16,47 @@ export function PolicyCard({
   status,
   grantedCount,
 }: PolicyCardProps) {
-  const active =
-    status.toUpperCase() === "ACTIVE"
-
   return (
-    <section
-      id="policy"
-      className="
-        tf-panel
-        overflow-hidden
-      "
+    <Panel
+      title="Active policy"
+      description="The policy ToolFence activated for this task."
+      action={<Badge tone={statusTone(status)}>{status}</Badge>}
     >
-      <div
-        className="
-          flex items-center justify-between
-          border-b border-white/[0.06]
-          px-5 py-4
-          sm:px-6
-        "
-      >
-        <div>
-          <p
-            className="
-              tf-mono
-              text-[10px]
-              uppercase
-              tracking-[0.16em]
-              text-blue-400
-            "
-          >
-            Active policy
-          </p>
+      <dl className="space-y-3.5">
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="tf-label">Bound task</dt>
 
-          <h2
-            className="
-              mt-2
-              text-xl
-              font-medium
-              text-white
-            "
-          >
-            Task capability contract
-          </h2>
+          <dd className="truncate font-mono text-[13px] text-ink">
+            {taskId}
+          </dd>
         </div>
 
-        <div
-          className={`
-            inline-flex
-            items-center gap-2
-            rounded-full
-            border
-            px-2.5 py-1
-            ${
-              active
-                ? "border-emerald-400/15 bg-emerald-400/[0.06]"
-                : "border-amber-400/15 bg-amber-400/[0.06]"
-            }
-          `}
-        >
-          <span
-            className={`
-              h-1.5 w-1.5
-              rounded-full
-              ${
-                active
-                  ? "bg-emerald-400"
-                  : "bg-amber-400"
-              }
-            `}
-          />
+        <div className="flex items-baseline justify-between gap-4 border-t border-line pt-3.5">
+          <dt className="tf-label">Policy ID</dt>
 
-          <span
-            className={`
-              tf-mono
-              text-[9px]
-              uppercase
-              tracking-[0.12em]
-              ${
-                active
-                  ? "text-emerald-300"
-                  : "text-amber-300"
-              }
-            `}
-          >
-            {status}
-          </span>
+          <dd className="truncate font-mono text-[12px] text-ink-soft">
+            {policyId}
+          </dd>
         </div>
+
+        <div className="flex items-baseline justify-between gap-4 border-t border-line pt-3.5">
+          <dt className="tf-label">Granted authority</dt>
+
+          <dd className="text-[13px] font-medium text-ink">
+            {grantedCount} capabilities
+          </dd>
+        </div>
+      </dl>
+
+      <div className="mt-5 rounded-lg border border-line bg-raised/40 p-4">
+        <p className="tf-label">Enforcement rule</p>
+
+        <p className="mt-2 text-[13px] leading-5 text-ink-soft">
+          Deny by default. Any tool, resource, or argument
+          outside the active contract is denied before
+          execution.
+        </p>
       </div>
-
-      <div className="p-5 sm:p-6">
-        <div
-          className="
-            grid gap-3
-            sm:grid-cols-2
-          "
-        >
-          <div
-            className="
-              rounded-xl
-              border border-white/[0.06]
-              bg-white/[0.015]
-              p-4
-            "
-          >
-            <div className="flex items-center gap-2">
-              <LockKeyhole className="h-4 w-4 text-blue-400" />
-
-              <p
-                className="
-                  tf-mono
-                  text-[9px]
-                  uppercase
-                  tracking-[0.14em]
-                  text-slate-600
-                "
-              >
-                Task binding
-              </p>
-            </div>
-
-            <p
-              className="
-                mt-3
-                text-sm
-                font-medium
-                text-slate-200
-              "
-            >
-              {taskId}
-            </p>
-
-            <p
-              className="
-                mt-2
-                text-xs
-                leading-5
-                text-slate-600
-              "
-            >
-              The policy is registered against this trusted task identity.
-            </p>
-          </div>
-
-          <div
-            className="
-              rounded-xl
-              border border-white/[0.06]
-              bg-white/[0.015]
-              p-4
-            "
-          >
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-emerald-400" />
-
-              <p
-                className="
-                  tf-mono
-                  text-[9px]
-                  uppercase
-                  tracking-[0.14em]
-                  text-slate-600
-                "
-              >
-                Granted authority
-              </p>
-            </div>
-
-            <p
-              className="
-                mt-3
-                text-2xl
-                font-semibold
-                tracking-[-0.03em]
-                text-white
-              "
-            >
-              {grantedCount}
-            </p>
-
-            <p
-              className="
-                mt-1
-                text-xs
-                text-slate-600
-              "
-            >
-              task-scoped capabilities
-            </p>
-          </div>
-        </div>
-
-        <div
-          className="
-            mt-4
-            rounded-xl
-            border border-blue-400/[0.08]
-            bg-blue-400/[0.025]
-            p-4
-          "
-        >
-          <div
-            className="
-              flex flex-col gap-3
-              sm:flex-row
-              sm:items-start
-              sm:justify-between
-            "
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="
-                  flex h-9 w-9
-                  shrink-0
-                  items-center justify-center
-                  rounded-lg
-                  border border-blue-400/10
-                  bg-blue-500/[0.05]
-                "
-              >
-                <Fingerprint className="h-4 w-4 text-blue-400" />
-              </div>
-
-              <div>
-                <p
-                  className="
-                    text-sm
-                    font-medium
-                    text-slate-300
-                  "
-                >
-                  Policy identity
-                </p>
-
-                <p
-                  className="
-                    mt-1
-                    text-xs
-                    leading-5
-                    text-slate-600
-                  "
-                >
-                  Deterministic hash of the compiled task policy.
-                </p>
-              </div>
-            </div>
-
-            <code
-              className="
-                tf-mono
-                max-w-full
-                break-all
-                rounded-lg
-                border border-white/[0.05]
-                bg-black/20
-                px-3 py-2
-                text-[9px]
-                leading-5
-                text-slate-500
-              "
-            >
-              {policyId}
-            </code>
-          </div>
-        </div>
-
-        <div
-          className="
-            mt-4
-            rounded-xl
-            border border-white/[0.05]
-            bg-black/10
-            p-4
-          "
-        >
-          <p
-            className="
-              tf-mono
-              text-[9px]
-              uppercase
-              tracking-[0.14em]
-              text-slate-600
-            "
-          >
-            Enforcement rule
-          </p>
-
-          <p
-            className="
-              mt-2
-              text-xs
-              leading-5
-              text-slate-500
-            "
-          >
-            Protected backend execution occurs only after ToolFence evaluates
-            the requested capability and resource against the active policy and
-            returns ALLOW.
-          </p>
-        </div>
-      </div>
-    </section>
+    </Panel>
   )
 }

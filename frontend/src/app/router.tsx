@@ -61,38 +61,32 @@ const BenchmarkPage = lazy(async () => {
   }
 })
 
+const NotFoundPage = lazy(async () => {
+  const module = await import("@/pages/Errors")
+
+  return {
+    default: module.NotFoundPage,
+  }
+})
+
+const RouteErrorPage = lazy(async () => {
+  const module = await import("@/pages/Errors")
+
+  return {
+    default: module.RouteErrorPage,
+  }
+})
+
 function RouteFallback() {
   return (
-    <main
-      className="
-        tf-page
-        flex min-h-screen
-        items-center justify-center
-      "
-    >
+    <main className="flex min-h-screen items-center justify-center bg-page">
       <div className="text-center">
         <div
-          className="
-            mx-auto
-            h-8 w-8
-            animate-spin
-            rounded-full
-            border-2
-            border-white/[0.08]
-            border-t-blue-400
-          "
+          aria-hidden="true"
+          className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-line border-t-accent"
         />
 
-        <p
-          className="
-            tf-mono
-            mt-4
-            text-[10px]
-            uppercase
-            tracking-[0.16em]
-            text-slate-600
-          "
-        >
+        <p className="tf-label mt-4">
           Loading ToolFence
         </p>
       </div>
@@ -120,6 +114,11 @@ export const router = createBrowserRouter([
         <LandingPage />
       </LazyRoute>
     ),
+    errorElement: (
+      <LazyRoute>
+        <RouteErrorPage />
+      </LazyRoute>
+    ),
   },
 
   {
@@ -127,6 +126,11 @@ export const router = createBrowserRouter([
     element: (
       <LazyRoute>
         <DashboardLayout />
+      </LazyRoute>
+    ),
+    errorElement: (
+      <LazyRoute>
+        <RouteErrorPage />
       </LazyRoute>
     ),
     children: [
@@ -171,5 +175,19 @@ export const router = createBrowserRouter([
         ),
       },
     ],
+  },
+
+  {
+    path: "*",
+    element: (
+      <LazyRoute>
+        <NotFoundPage />
+      </LazyRoute>
+    ),
+    errorElement: (
+      <LazyRoute>
+        <RouteErrorPage />
+      </LazyRoute>
+    ),
   },
 ])

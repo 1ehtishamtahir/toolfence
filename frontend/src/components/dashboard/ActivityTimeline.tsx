@@ -1,327 +1,94 @@
-﻿import {
-  CheckCircle2,
-  CircleSlash2,
-  FileCode2,
-  GitPullRequest,
-  PlayCircle,
-  Ticket,
-} from "lucide-react"
+﻿import { Badge } from "@/components/ui/Badge"
+import { Panel } from "@/components/ui/Panel"
+import {
+  cn,
+} from "@/lib/utils"
+import type { PolicyDecision } from "@/lib/policy"
+import { executionTone, decisionTone } from "@/lib/policy"
 
-export type ActivityEvent = {
+export type TimelineEvent = {
   id: number
   tool: string
   resource: string
-  decision: "ALLOW" | "DENY"
-  executionStatus: string
-  result?: string
+  decision: PolicyDecision
+  executionStatus: "EXECUTED" | "NOT_EXECUTED" | "FAILED"
+  result: string
+}
+
+const stripeTone: Record<PolicyDecision, string> = {
+  ALLOW: "bg-allow",
+  DENY: "bg-deny",
 }
 
 type ActivityTimelineProps = {
-  events: ActivityEvent[]
+  events: TimelineEvent[]
 }
-
-const toolIcons = {
-  "ticket.get": Ticket,
-  "repo.read": FileCode2,
-  "repo.write": FileCode2,
-  "ci.run": PlayCircle,
-  "ci.status": PlayCircle,
-  "pull_request.create": GitPullRequest,
-} as const
 
 export function ActivityTimeline({
   events,
 }: ActivityTimelineProps) {
   return (
-    <section
-      id="activity"
-      className="tf-panel overflow-hidden"
+    <Panel
+      title="Protected tool timeline"
+      description="Most recent requests for the active policy, oldest first."
+      bodyClassName="p-0"
+      action={
+        <Badge>{events.length} events</Badge>
+      }
     >
-      <div
-        className="
-          flex items-center justify-between
-          border-b border-white/[0.06]
-          px-5 py-4
-          sm:px-6
-        "
-      >
-        <div>
-          <p
-            className="
-              tf-mono
-              text-[10px]
-              uppercase
-              tracking-[0.16em]
-              text-blue-400
-            "
+      <ul>
+        {events.map((event) => (
+          <li
+            key={event.id}
+            className="relative flex items-start gap-4 border-b border-line px-5 py-4 last:border-0"
           >
-            Protected activity
-          </p>
+            <span
+              aria-hidden="true"
+              className={cn(
+                "absolute inset-y-0 left-0 w-0.5",
+                stripeTone[event.decision],
+              )}
+            />
 
-          <h2
-            className="
-              mt-2
-              text-xl
-              font-medium
-              text-white
-            "
-          >
-            Authorization timeline
-          </h2>
+            <span className="mt-0.5 w-12 shrink-0 font-mono text-[11px] text-ink-muted">
+              #{event.id}
+            </span>
 
-          <p className="mt-1 text-xs text-slate-600">
-            Protected calls evaluated by ToolFence.
-          </p>
-        </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span className="font-mono text-[13px] text-ink">
+                  {event.tool}
+                </span>
 
-        <span
-          className="
-            rounded-lg
-            border border-white/[0.06]
-            bg-white/[0.02]
-            px-2.5 py-1.5
-            tf-mono
-            text-[9px]
-            text-slate-500
-          "
-        >
-          {events.length} EVENTS
-        </span>
-      </div>
+                <span className="truncate font-mono text-[12px] text-ink-muted">
+                  {event.resource}
+                </span>
+              </div>
 
-      <div className="p-5 sm:p-6">
-        <div className="relative">
-          <div
-            className="
-              absolute
-              bottom-5 left-[17px] top-5
-              w-px
-              bg-white/[0.06]
-            "
-          />
+              <p className="mt-1 text-[13px] leading-5 text-ink-soft">
+                {event.result}
+              </p>
+            </div>
 
-          <div className="space-y-4">
-            {events.map(
-              (
-                {
-                  id,
-                  tool,
-                  resource,
-                  decision,
-                  executionStatus,
-                  result,
-                },
-                index,
-              ) => {
-                const allowed =
-                  decision === "ALLOW"
+            <div className="flex shrink-0 items-center gap-2">
+              <Badge tone={decisionTone(event.decision)}>
+                {event.decision}
+              </Badge>
 
-                const Icon =
-                  toolIcons[
-                    tool as keyof typeof toolIcons
-                  ] ??
-                  (allowed
-                    ? CheckCircle2
-                    : CircleSlash2)
-
-                return (
-                  <div
-                    key={`${id}-${tool}`}
-                    className="
-                      relative
-                      grid gap-3
-                      pl-12
-                    "
-                  >
-                    <div
-                      className={`
-                        absolute left-0 top-1
-                        z-10
-                        flex h-9 w-9
-                        items-center justify-center
-                        rounded-xl
-                        border
-                        ${
-                          allowed
-                            ? "border-emerald-400/12 bg-[#0d1714]"
-                            : "border-red-400/12 bg-[#171011]"
-                        }
-                      `}
-                    >
-                      <Icon
-                        className={`
-                          h-4 w-4
-                          ${
-                            allowed
-                              ? "text-emerald-400"
-                              : "text-red-400"
-                          }
-                        `}
-                        strokeWidth={1.8}
-                      />
-                    </div>
-
-                    <div
-                      className="
-                        rounded-xl
-                        border border-white/[0.05]
-                        bg-white/[0.015]
-                        p-4
-                      "
-                    >
-                      <div
-                        className="
-                          flex flex-col gap-3
-                          sm:flex-row
-                          sm:items-start
-                          sm:justify-between
-                        "
-                      >
-                        <div>
-                          <div
-                            className="
-                              flex flex-wrap
-                              items-center gap-2
-                            "
-                          >
-                            <span
-                              className="
-                                tf-mono
-                                text-[10px]
-                                text-slate-600
-                              "
-                            >
-                              #{id}
-                            </span>
-
-                            <span
-                              className="
-                                tf-mono
-                                text-[11px]
-                                text-slate-200
-                              "
-                            >
-                              {tool}
-                            </span>
-
-                            <span
-                              className={`
-                                rounded-md
-                                border
-                                px-2 py-0.5
-                                tf-mono
-                                text-[8px]
-                                tracking-[0.08em]
-                                ${
-                                  allowed
-                                    ? "border-emerald-400/10 bg-emerald-400/[0.04] text-emerald-400"
-                                    : "border-red-400/10 bg-red-400/[0.04] text-red-400"
-                                }
-                              `}
-                            >
-                              {decision}
-                            </span>
-                          </div>
-
-                          <p
-                            className="
-                              tf-mono
-                              mt-2
-                              break-all
-                              text-[9px]
-                              text-slate-600
-                            "
-                          >
-                            {resource}
-                          </p>
-                        </div>
-
-                        <div className="sm:text-right">
-                          <p
-                            className="
-                              tf-mono
-                              text-[8px]
-                              uppercase
-                              tracking-[0.12em]
-                              text-slate-700
-                            "
-                          >
-                            Execution
-                          </p>
-
-                          <p
-                            className={`
-                              tf-mono
-                              mt-1
-                              text-[9px]
-                              ${
-                                allowed
-                                  ? "text-slate-400"
-                                  : "text-red-400"
-                              }
-                            `}
-                          >
-                            {executionStatus}
-                          </p>
-                        </div>
-                      </div>
-
-                      {result && (
-                        <div
-                          className="
-                            mt-3
-                            border-t border-white/[0.05]
-                            pt-3
-                          "
-                        >
-                          <p
-                            className="
-                              text-xs
-                              text-slate-500
-                            "
-                          >
-                            {result}
-                          </p>
-                        </div>
-                      )}
-
-                      {index ===
-                        events.length - 1 && (
-                        <div
-                          className="
-                            mt-3
-                            flex items-center gap-2
-                          "
-                        >
-                          <span
-                            className="
-                              h-1.5 w-1.5
-                              rounded-full
-                              bg-blue-400
-                            "
-                          />
-
-                          <span
-                            className="
-                              tf-mono
-                              text-[8px]
-                              uppercase
-                              tracking-[0.12em]
-                              text-blue-400
-                            "
-                          >
-                            latest event
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )
-              },
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
+              <Badge
+                tone={executionTone(event.executionStatus)}
+                className="hidden sm:inline-flex"
+              >
+                {event.executionStatus === "EXECUTED"
+                  ? "executed"
+                  : event.executionStatus === "FAILED"
+                    ? "failed"
+                    : "not executed"}
+              </Badge>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   )
 }

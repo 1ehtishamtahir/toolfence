@@ -1,13 +1,13 @@
-﻿import { Outlet } from "react-router-dom"
+﻿import { useState } from "react"
+import { Outlet } from "react-router-dom"
 
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader"
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar"
+import { Button } from "@/components/ui/Button"
 import { useDashboardData } from "@/hooks/useDashboardData"
-
 
 export type DashboardContextValue =
   ReturnType<typeof useDashboardData>
-
 
 export function DashboardLayout() {
   const dashboard = useDashboardData()
@@ -22,230 +22,115 @@ export function DashboardLayout() {
     refetchAll,
   } = dashboard
 
+  const [menuOpen, setMenuOpen] = useState(false)
+
   if (isLoading) {
     return (
-      <main className="tf-page min-h-screen">
-        <div className="flex min-h-screen">
-          <DashboardSidebar />
+      <main className="flex min-h-screen items-center justify-center bg-page px-6">
+        <div className="tf-panel w-full max-w-sm p-8 text-center">
+          <div
+            aria-hidden="true"
+            className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-line border-t-accent"
+          />
 
-          <div className="min-w-0 flex-1">
-            <div
-              className="
-                flex min-h-screen
-                items-center justify-center
-                px-6
-              "
-            >
-              <div
-                className="
-                  rounded-2xl
-                  border border-white/[0.06]
-                  bg-white/[0.025]
-                  px-8 py-7
-                  text-center
-                "
-              >
-                <div
-                  className="
-                    mx-auto
-                    h-8 w-8
-                    animate-spin
-                    rounded-full
-                    border-2
-                    border-white/[0.08]
-                    border-t-blue-400
-                  "
-                />
+          <p className="mt-4 text-sm font-medium text-ink">
+            Loading ToolFence runtime…
+          </p>
 
-                <p
-                  className="
-                    mt-4
-                    text-sm font-medium
-                    text-slate-300
-                  "
-                >
-                  Loading ToolFence runtime…
-                </p>
-
-                <p
-                  className="
-                    mt-2
-                    text-xs
-                    text-slate-600
-                  "
-                >
-                  Reading policy, capability, audit, and benchmark data.
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="mt-1.5 text-[13px] text-ink-muted">
+            Reading policy, capability, audit, and benchmark
+            data.
+          </p>
         </div>
       </main>
     )
   }
 
-  if (
-    isError ||
-    !task ||
-    !policy
-  ) {
+  if (isError || !task || !policy) {
     const message =
       error instanceof Error
         ? error.message
         : "Unable to load ToolFence dashboard data."
 
     return (
-      <main className="tf-page min-h-screen">
-        <div className="flex min-h-screen">
-          <DashboardSidebar />
+      <main className="flex min-h-screen items-center justify-center bg-page px-6">
+        <div className="tf-panel w-full max-w-lg border-deny/40 p-7">
+          <p className="tf-label text-deny">
+            Dashboard data unavailable
+          </p>
 
-          <div className="min-w-0 flex-1">
-            <div
-              className="
-                flex min-h-screen
-                items-center justify-center
-                px-6
-              "
-            >
-              <div
-                className="
-                  w-full
-                  max-w-lg
-                  rounded-2xl
-                  border border-red-500/20
-                  bg-red-500/[0.035]
-                  p-7
-                "
-              >
-                <p
-                  className="
-                    text-sm font-semibold
-                    text-red-300
-                  "
-                >
-                  Dashboard data unavailable
-                </p>
+          <p className="mt-3 text-sm leading-6 text-ink-soft">
+            {message}
+          </p>
 
-                <p
-                  className="
-                    mt-2
-                    text-sm
-                    leading-6
-                    text-slate-400
-                  "
-                >
-                  {message}
-                </p>
-
-                <button
-                  type="button"
-                  disabled={isFetching}
-                  onClick={() => {
-                    void refetchAll()
-                  }}
-                  className="
-                    mt-5
-                    rounded-lg
-                    border border-white/10
-                    bg-white/[0.04]
-                    px-4 py-2
-                    text-xs font-medium
-                    text-slate-300
-                    transition
-                    hover:bg-white/[0.07]
-                    disabled:cursor-wait
-                    disabled:opacity-50
-                  "
-                >
-                  {isFetching
-                    ? "Retrying…"
-                    : "Retry"}
-                </button>
-              </div>
-            </div>
-          </div>
+          <Button
+            variant="secondary"
+            className="mt-5"
+            disabled={isFetching}
+            onClick={() => {
+              void refetchAll()
+            }}
+          >
+            {isFetching ? "Retrying…" : "Retry"}
+          </Button>
         </div>
       </main>
     )
   }
 
   return (
-    <main className="tf-page min-h-screen">
-      <div className="flex min-h-screen">
-        <DashboardSidebar />
+    <main className="flex min-h-screen bg-page">
+      <aside className="hidden lg:block">
+        <div className="fixed inset-y-0 left-0 z-20">
+          <DashboardSidebar />
+        </div>
+      </aside>
 
-        <div className="min-w-0 flex-1">
-          <DashboardHeader
-            taskId={task.taskId}
-            policyStatus={policy.status}
+      {menuOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <button
+            type="button"
+            aria-label="Close navigation"
+            onClick={() => setMenuOpen(false)}
+            className="absolute inset-0 bg-black/60"
           />
 
-          <div
-            className="
-              mx-auto
-              w-full
-              max-w-[1600px]
-              p-4
-              sm:p-6
-              xl:p-7
-            "
-          >
-            <Outlet
-              context={dashboard}
+          <div className="absolute inset-y-0 left-0">
+            <DashboardSidebar
+              onNavigate={() => setMenuOpen(false)}
             />
+          </div>
+        </div>
+      )}
 
-            <div
-              className="
-                mt-8
-                mb-6
-                flex flex-col gap-3
-                rounded-xl
-                border border-white/[0.05]
-                bg-white/[0.015]
-                px-4 py-3
-                sm:flex-row
-                sm:items-center
-                sm:justify-between
-              "
+      <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
+        <DashboardHeader
+          taskId={task.taskId}
+          policyStatus={policy.status}
+          onOpenMenu={() => setMenuOpen(true)}
+        />
+
+        <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 xl:px-8">
+          <Outlet context={dashboard} />
+
+          <div className="mt-10 flex flex-col gap-3 border-t border-line pt-5 pb-8 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-2xl text-[12px] leading-5 text-ink-muted">
+              Live dashboard data is read from the ToolFence
+              FastAPI observability bridge. Authorization
+              continues to use the trusted in-memory policy
+              store.
+            </p>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={isFetching}
+              onClick={() => {
+                void refetchAll()
+              }}
             >
-              <p
-                className="
-                  text-xs
-                  leading-5
-                  text-slate-600
-                "
-              >
-                Live dashboard data is read from the ToolFence FastAPI
-                observability bridge. Authorization continues to use the
-                trusted in-memory policy store.
-              </p>
-
-              <button
-                type="button"
-                disabled={isFetching}
-                onClick={() => {
-                  void refetchAll()
-                }}
-                className="
-                  shrink-0
-                  rounded-lg
-                  border border-white/[0.07]
-                  bg-white/[0.025]
-                  px-3 py-2
-                  text-xs font-medium
-                  text-slate-400
-                  transition
-                  hover:bg-white/[0.05]
-                  hover:text-slate-200
-                  disabled:cursor-wait
-                  disabled:opacity-50
-                "
-              >
-                {isFetching
-                  ? "Refreshing…"
-                  : "Refresh data"}
-              </button>
-            </div>
+              {isFetching ? "Refreshing…" : "Refresh data"}
+            </Button>
           </div>
         </div>
       </div>

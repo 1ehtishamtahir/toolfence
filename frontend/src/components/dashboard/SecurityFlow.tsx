@@ -1,369 +1,104 @@
-﻿import {
-  Activity,
-  ArrowRight,
-  Bot,
-  CheckCircle2,
-  LockKeyhole,
-  ServerCog,
-  ShieldCheck,
-} from "lucide-react"
+﻿import { Badge } from "@/components/ui/Badge"
+import { cn } from "@/lib/utils"
+import type { PolicyDecision } from "@/types/api"
 
 type SecurityFlowProps = {
-  decision?: "ALLOW" | "DENY"
-  tool?: string
-  resource?: string
+  decision: PolicyDecision
+  tool: string
+  resource: string
 }
 
 export function SecurityFlow({
-  decision = "ALLOW",
-  tool = "repo.write",
-  resource = "project/src/cart.py",
+  decision,
+  tool,
+  resource,
 }: SecurityFlowProps) {
   const allowed = decision === "ALLOW"
 
-  const steps = [
+  const nodes = [
     {
-      label: "IBM Bob",
-      helper: "Proposes capability",
-      icon: Bot,
-      tone: "blue",
+      step: "01",
+      label: "Request",
+      value: tool,
+      tone: "text-ink",
     },
     {
-      label: "ToolFence Policy",
-      helper: "Checks active contract",
-      icon: LockKeyhole,
-      tone: "blue",
+      step: "02",
+      label: "Policy check",
+      value: "Active contract",
+      tone: "text-ink-soft",
     },
     {
-      label: decision,
-      helper: allowed
-        ? "Authorization granted"
-        : "Authorization blocked",
-      icon: allowed
-        ? CheckCircle2
-        : ShieldCheck,
-      tone: allowed
-        ? "green"
-        : "red",
+      step: "03",
+      label: "Decision",
+      value: decision,
+      tone: allowed ? "text-allow" : "text-deny",
     },
     {
-      label: "Protected Backend",
-      helper: allowed
-        ? "Request executes"
-        : "Request not executed",
-      icon: ServerCog,
-      tone: allowed
-        ? "green"
-        : "red",
+      step: "04",
+      label: "Backend",
+      value: allowed ? "Executed" : "Not forwarded",
+      tone: allowed ? "text-ink" : "text-ink-muted",
     },
     {
-      label: "Audit Trail",
-      helper: "Decision recorded",
-      icon: Activity,
-      tone: "blue",
+      step: "05",
+      label: "Audit",
+      value: "Recorded",
+      tone: "text-ink-soft",
     },
-  ]
+  ] as const
 
   return (
-    <section className="tf-panel overflow-hidden">
-      <div
-        className="
-          flex flex-col gap-4
-          border-b border-white/[0.06]
-          px-5 py-4
-          sm:flex-row
-          sm:items-center
-          sm:justify-between
-          sm:px-6
-        "
-      >
-        <div>
-          <p
-            className="
-              tf-mono
-              text-[10px]
-              uppercase
-              tracking-[0.16em]
-              text-blue-400
-            "
+    <div className="tf-panel p-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {nodes.map((node) => (
+          <div
+            key={node.step}
+            className={cn(
+              "rounded-lg border bg-raised/40 p-3.5",
+              node.label === "Decision"
+                ? allowed
+                  ? "border-allow/40"
+                  : "border-deny/40"
+                : "border-line",
+            )}
           >
-            Security flow
-          </p>
+            <div className="flex items-center justify-between gap-2">
+              <span className="tf-label">{node.label}</span>
 
-          <h2
-            className="
-              mt-2
-              text-xl
-              font-medium
-              text-white
-            "
-          >
-            Protected request path
-          </h2>
+              <span className="font-mono text-[11px] text-ink-muted">
+                {node.step}
+              </span>
+            </div>
 
-          <p className="mt-1 text-xs text-slate-600">
-            Every tool call crosses the same deterministic boundary.
-          </p>
-        </div>
-
-        <div
-          className="
-            rounded-lg
-            border border-white/[0.06]
-            bg-white/[0.02]
-            px-3 py-2
-          "
-        >
-          <p
-            className="
-              tf-mono
-              text-[9px]
-              text-slate-300
-            "
-          >
-            {tool}
-          </p>
-
-          <p
-            className="
-              tf-mono
-              mt-1
-              max-w-[220px]
-              truncate
-              text-[8px]
-              text-slate-600
-            "
-          >
-            {resource}
-          </p>
-        </div>
+            <p
+              className={cn(
+                "mt-2.5 truncate text-[13px] font-medium",
+                node.tone,
+              )}
+            >
+              {node.value}
+            </p>
+          </div>
+        ))}
       </div>
 
-      <div className="p-5 sm:p-6">
-        <div
-          className="
-            grid gap-3
-            xl:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr]
-            xl:items-center
-          "
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-4">
+        <span className="font-mono text-[12px] text-ink">
+          {tool}
+        </span>
+
+        <span className="font-mono text-[12px] text-ink-muted">
+          {resource}
+        </span>
+
+        <Badge
+          tone={allowed ? "allow" : "deny"}
+          className="ml-auto"
         >
-          {steps.map(
-            (
-              {
-                label,
-                helper,
-                icon: Icon,
-                tone,
-              },
-              index,
-            ) => {
-              const blue = tone === "blue"
-              const green = tone === "green"
-
-
-              return (
-                <div
-                  key={label}
-                  className="contents"
-                >
-                  <div
-                    className={`
-                      rounded-xl
-                      border
-                      p-4
-                      ${
-                        blue
-                          ? "border-blue-400/[0.08] bg-blue-400/[0.025]"
-                          : green
-                            ? "border-emerald-400/[0.08] bg-emerald-400/[0.025]"
-                            : "border-red-400/[0.08] bg-red-400/[0.025]"
-                      }
-                    `}
-                  >
-                    <div
-                      className={`
-                        flex h-9 w-9
-                        items-center justify-center
-                        rounded-xl
-                        border
-                        ${
-                          blue
-                            ? "border-blue-400/10 bg-blue-400/[0.04]"
-                            : green
-                              ? "border-emerald-400/10 bg-emerald-400/[0.04]"
-                              : "border-red-400/10 bg-red-400/[0.04]"
-                        }
-                      `}
-                    >
-                      <Icon
-                        className={`
-                          h-4 w-4
-                          ${
-                            blue
-                              ? "text-blue-400"
-                              : green
-                                ? "text-emerald-400"
-                                : "text-red-400"
-                          }
-                        `}
-                        strokeWidth={1.8}
-                      />
-                    </div>
-
-                    <p
-                      className="
-                        mt-4
-                        text-sm
-                        font-medium
-                        text-slate-200
-                      "
-                    >
-                      {label}
-                    </p>
-
-                    <p
-                      className="
-                        mt-1
-                        text-xs
-                        leading-5
-                        text-slate-600
-                      "
-                    >
-                      {helper}
-                    </p>
-                  </div>
-
-                  {index < steps.length - 1 && (
-                    <div
-                      className="
-                        hidden
-                        items-center justify-center
-                        xl:flex
-                      "
-                    >
-                      <ArrowRight
-                        className="
-                          h-4 w-4
-                          text-slate-700
-                        "
-                      />
-                    </div>
-                  )}
-                </div>
-              )
-            },
-          )}
-        </div>
-
-        <div
-          className="
-            mt-5
-            grid gap-3
-            md:grid-cols-3
-          "
-        >
-          <div
-            className="
-              rounded-xl
-              border border-white/[0.05]
-              bg-white/[0.015]
-              p-4
-            "
-          >
-            <p
-              className="
-                tf-mono
-                text-[9px]
-                uppercase
-                tracking-[0.14em]
-                text-slate-700
-              "
-            >
-              Proposed action
-            </p>
-
-            <p
-              className="
-                tf-mono
-                mt-2
-                text-[10px]
-                text-slate-300
-              "
-            >
-              {tool}
-            </p>
-          </div>
-
-          <div
-            className="
-              rounded-xl
-              border border-white/[0.05]
-              bg-white/[0.015]
-              p-4
-            "
-          >
-            <p
-              className="
-                tf-mono
-                text-[9px]
-                uppercase
-                tracking-[0.14em]
-                text-slate-700
-              "
-            >
-              Resource
-            </p>
-
-            <p
-              className="
-                tf-mono
-                mt-2
-                break-all
-                text-[10px]
-                text-slate-300
-              "
-            >
-              {resource}
-            </p>
-          </div>
-
-          <div
-            className="
-              rounded-xl
-              border border-white/[0.05]
-              bg-white/[0.015]
-              p-4
-            "
-          >
-            <p
-              className="
-                tf-mono
-                text-[9px]
-                uppercase
-                tracking-[0.14em]
-                text-slate-700
-              "
-            >
-              Final decision
-            </p>
-
-            <p
-              className={`
-                tf-mono
-                mt-2
-                text-[10px]
-                ${
-                  allowed
-                    ? "text-emerald-400"
-                    : "text-red-400"
-                }
-              `}
-            >
-              {decision}
-            </p>
-          </div>
-        </div>
+          {allowed ? "allowed" : "denied"}
+        </Badge>
       </div>
-    </section>
+    </div>
   )
 }

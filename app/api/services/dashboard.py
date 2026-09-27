@@ -29,7 +29,12 @@ def _resolve_project_path(
     path = Path(configured)
 
     if not path.is_absolute():
-        path = get_project_root() / path
+        resolved = get_project_root() / path
+        if not resolved.exists() and (
+            Path.cwd() / path
+        ).exists():
+            resolved = Path.cwd() / path
+        path = resolved
 
     return path
 

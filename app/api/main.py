@@ -1,5 +1,7 @@
 ﻿from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,6 +13,32 @@ from app.api.routes import (
     policy,
     task,
 )
+
+
+DEFAULT_CORS_ORIGINS = [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+]
+
+
+def get_cors_origins() -> list[str]:
+    """
+    Comma-separated origins via TOOLFENCE_CORS_ORIGINS, e.g. the
+    deployed Netlify site. Local dev origins are the default.
+    """
+
+    configured = os.getenv(
+        "TOOLFENCE_CORS_ORIGINS",
+        "",
+    )
+
+    origins = [
+        origin.strip()
+        for origin in configured.split(",")
+        if origin.strip()
+    ]
+
+    return origins or DEFAULT_CORS_ORIGINS
 
 
 app = FastAPI(
@@ -25,10 +53,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5173",
-        "http://localhost:5173",
-    ],
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
     allow_methods=["GET"],
     allow_headers=["*"],

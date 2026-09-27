@@ -1,5 +1,7 @@
 ﻿import type { ReactNode } from "react"
 
+import { cn } from "@/lib/utils"
+
 type SectionHeadingProps = {
   eyebrow?: string
   title: string
@@ -13,65 +15,35 @@ export function SectionHeading({
   title,
   description,
   action,
-  className = "",
+  className,
 }: SectionHeadingProps) {
   return (
     <div
-      className={`
-        flex flex-col gap-4
-        sm:flex-row
-        sm:items-end
-        sm:justify-between
-        ${className}
-      `}
+      className={cn(
+        "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
+        className,
+      )}
     >
       <div className="max-w-3xl">
         {eyebrow && (
-          <p
-            className="
-              tf-mono
-              text-[10px]
-              uppercase
-              tracking-[0.16em]
-              text-blue-400
-            "
-          >
+          <p className="tf-label text-accent">
             {eyebrow}
           </p>
         )}
 
-        <h2
-          className="
-            mt-2
-            text-2xl
-            font-semibold
-            tracking-[-0.03em]
-            text-white
-            sm:text-3xl
-          "
-        >
+        <h2 className="mt-2.5 text-xl font-semibold tracking-tight text-ink sm:text-2xl">
           {title}
         </h2>
 
         {description && (
-          <p
-            className="
-              mt-3
-              max-w-2xl
-              text-sm
-              leading-6
-              text-slate-500
-            "
-          >
+          <p className="mt-2 max-w-2xl text-[13px] leading-6 text-ink-muted">
             {description}
           </p>
         )}
       </div>
 
       {action && (
-        <div className="shrink-0">
-          {action}
-        </div>
+        <div className="shrink-0">{action}</div>
       )}
     </div>
   )

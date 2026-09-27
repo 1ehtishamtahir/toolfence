@@ -1,584 +1,138 @@
-import { Link } from "react-router-dom"
-import { motion } from "motion/react"
-import {
-  ArrowRight,
-  Check,
-  LockKeyhole,
-  ShieldCheck,
-  X,
-} from "lucide-react"
+import { buttonVariants } from "@/components/ui/button-variants"
+import { Badge } from "@/components/ui/Badge"
+import { ButtonLink } from "@/components/ui/Button"
+import { Panel } from "@/components/ui/Panel"
+import { cn } from "@/lib/utils"
 
-const grantedCapabilities = [
-  "ticket.get",
-  "repo.read",
-  "repo.write",
-  "ci.run",
-  "ci.status",
-  "pull_request.create",
-]
+const REPOSITORY_URL =
+  "https://github.com/builtbyrehan/toolfence"
 
-const blockedCapabilities = [
-  "ticket.delete",
-  "release.deploy",
-  "secret.read",
-]
+const STATS = [
+  { value: "11", label: "protected capabilities" },
+  { value: "6", label: "granted for the golden task" },
+  { value: "45.45%", label: "privilege reduction" },
+] as const
+
+const LOG_ROWS = [
+  {
+    request: "ticket.get · BUG-17",
+    allowed: true,
+  },
+  {
+    request: "repo.write · project/src/*",
+    allowed: true,
+  },
+  {
+    request: "ci.run · feature/BUG-17",
+    allowed: true,
+  },
+  {
+    request: "secret.read · production-key",
+    allowed: false,
+  },
+] as const
 
 export function Hero() {
   return (
-    <section
-      className="
-        relative overflow-hidden
-        border-b border-white/[0.06]
-        pt-28 sm:pt-32
-      "
-    >
-      {/* Background */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="tf-grid-background absolute inset-0 opacity-60" />
+    <section className="tf-container grid items-start gap-12 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-28">
+      <div>
+        <p className="tf-label text-accent">
+          Task-scoped security for AI coding agents
+        </p>
 
-        <div
-          className="
-            absolute left-1/2 top-[-220px]
-            h-[600px] w-[900px]
-            -translate-x-1/2
-            rounded-full
-            bg-blue-500/[0.08]
-            blur-[120px]
-          "
-        />
+        <h1 className="mt-5 text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl">
+          Bob reasons.
+          <br />
+          <span className="text-ink-muted">
+            ToolFence enforces.
+          </span>
+        </h1>
 
-        <div
-          className="
-            absolute right-[-180px] top-[200px]
-            h-[400px] w-[400px]
-            rounded-full
-            bg-emerald-500/[0.045]
-            blur-[100px]
-          "
-        />
-      </div>
+        <p className="mt-5 max-w-xl text-[15px] leading-7 text-ink-soft">
+          ToolFence turns one task into a temporary
+          capability boundary. The agent proposes the minimum
+          authority it needs, a trusted ceiling validates it,
+          and every protected call is checked deterministically
+          before anything executes.
+        </p>
 
-      <div className="tf-container relative">
-        <div
-          className="
-            grid items-center gap-16
-            pb-20
-            lg:grid-cols-[1.05fr_0.95fr]
-            lg:pb-28
-          "
-        >
-          {/* =====================================================
-              LEFT — PRODUCT MESSAGE
-             ===================================================== */}
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <ButtonLink to="/dashboard" size="lg" variant="primary">
+            Open security console
+          </ButtonLink>
 
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 18,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              duration: 0.55,
-              ease: "easeOut",
-            }}
+          <a
+            href="#how-it-works"
+            className={cn(
+              buttonVariants({ variant: "secondary", size: "lg" }),
+            )}
           >
-            {/* Eyebrow */}
-            <div
-              className="
-                mb-7 inline-flex items-center gap-2
-                rounded-full
-                border border-blue-400/15
-                bg-blue-500/[0.07]
-                px-3 py-1.5
-              "
-            >
-              <ShieldCheck className="h-3.5 w-3.5 text-blue-400" />
+            How it works
+          </a>
 
-              <span
-                className="
-                  tf-mono
-                  text-[10px]
-                  uppercase
-                  tracking-[0.18em]
-                  text-blue-300
-                "
-              >
-                Task-scoped security for AI agents
-              </span>
-            </div>
-
-            {/* Heading */}
-            <h1
-              className="
-                max-w-[760px]
-                text-[clamp(3.1rem,7vw,6.7rem)]
-                font-semibold
-                leading-[0.93]
-                tracking-[-0.055em]
-                text-white
-              "
-            >
-              Give AI agents
-              <span className="block tf-gradient-text">
-                only what they need.
-              </span>
-            </h1>
-
-            {/* Copy */}
-            <p
-              className="
-                mt-7
-                max-w-[640px]
-                text-base
-                leading-7
-                text-slate-400
-                sm:text-lg
-                sm:leading-8
-              "
-            >
-              ToolFence turns a coding task into a deterministic
-              capability boundary—so IBM Bob can reason freely while
-              every protected tool call is independently authorized,
-              scoped, and audited.
-            </p>
-
-            {/* Principle */}
-            <div className="mt-7 flex items-center gap-3">
-              <div
-                className="
-                  h-px w-8
-                  bg-gradient-to-r
-                  from-blue-500
-                  to-transparent
-                "
-              />
-
-              <p
-                className="
-                  tf-mono
-                  text-xs
-                  tracking-[0.12em]
-                  text-slate-300
-                "
-              >
-                BOB REASONS.
-                <span className="ml-2 text-blue-400">
-                  TOOLFENCE ENFORCES.
-                </span>
-              </p>
-            </div>
-
-            {/* CTA */}
-            <div
-              className="
-                mt-10
-                flex flex-col gap-3
-                sm:flex-row
-              "
-            >
-              <Link
-                to="/dashboard"
-                className="
-                  group
-                  inline-flex items-center justify-center gap-2
-                  rounded-xl
-                  bg-blue-500
-                  px-5 py-3
-                  text-sm
-                  font-medium
-                  text-white
-                  shadow-[0_0_36px_rgba(59,130,246,0.20)]
-                  transition
-                  hover:bg-blue-400
-                "
-              >
-                Open Security Console
-
-                <ArrowRight
-                  className="
-                    h-4 w-4
-                    transition-transform
-                    group-hover:translate-x-0.5
-                  "
-                />
-              </Link>
-
-              <a
-                href="#how-it-works"
-                className="
-                  inline-flex items-center justify-center
-                  rounded-xl
-                  border border-white/[0.10]
-                  bg-white/[0.025]
-                  px-5 py-3
-                  text-sm
-                  font-medium
-                  text-slate-300
-                  transition
-                  hover:border-white/[0.18]
-                  hover:bg-white/[0.05]
-                  hover:text-white
-                "
-              >
-                See how it works
-              </a>
-            </div>
-
-            {/* Proof points */}
-            <div
-              className="
-                mt-12
-                flex flex-wrap gap-x-7 gap-y-3
-                text-xs
-                text-slate-500
-              "
-            >
-              <span>
-                <strong className="mr-1 text-slate-200">
-                  11
-                </strong>
-                protected capabilities
-              </span>
-
-              <span>
-                <strong className="mr-1 text-slate-200">
-                  16/16
-                </strong>
-                benchmark cases
-              </span>
-
-              <span>
-                <strong className="mr-1 text-emerald-400">
-                  100%
-                </strong>
-                forbidden actions blocked
-              </span>
-            </div>
-          </motion.div>
-
-          {/* =====================================================
-              RIGHT — SECURITY VISUAL
-             ===================================================== */}
-
-          <motion.div
-            initial={{
-              opacity: 0,
-              x: 22,
-            }}
-            animate={{
-              opacity: 1,
-              x: 0,
-            }}
-            transition={{
-              delay: 0.12,
-              duration: 0.6,
-              ease: "easeOut",
-            }}
-            className="relative"
+          <a
+            href={REPOSITORY_URL}
+            target="_blank"
+            rel="noreferrer"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "lg" }),
+            )}
           >
-            <div
-              className="
-                absolute -inset-10
-                rounded-[40px]
-                bg-blue-500/[0.04]
-                blur-3xl
-              "
-            />
-
-            <div
-              className="
-                tf-panel
-                relative
-                overflow-hidden
-                rounded-[22px]
-              "
-            >
-              {/* Console header */}
-              <div
-                className="
-                  flex items-center justify-between
-                  border-b border-white/[0.07]
-                  px-5 py-4
-                "
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
-                  </div>
-
-                  <span
-                    className="
-                      tf-mono
-                      text-[10px]
-                      uppercase
-                      tracking-[0.16em]
-                      text-slate-500
-                    "
-                  >
-                    Active Task Boundary
-                  </span>
-                </div>
-
-                <div
-                  className="
-                    inline-flex items-center gap-2
-                    rounded-full
-                    border border-emerald-400/15
-                    bg-emerald-400/[0.07]
-                    px-2.5 py-1
-                  "
-                >
-                  <span
-                    className="
-                      h-1.5 w-1.5
-                      rounded-full
-                      bg-emerald-400
-                      shadow-[0_0_8px_rgba(74,222,128,0.8)]
-                    "
-                  />
-
-                  <span
-                    className="
-                      tf-mono
-                      text-[9px]
-                      tracking-[0.12em]
-                      text-emerald-300
-                    "
-                  >
-                    POLICY ACTIVE
-                  </span>
-                </div>
-              </div>
-
-              {/* Task */}
-              <div className="border-b border-white/[0.07] p-5">
-                <div
-                  className="
-                    mb-2
-                    flex items-center justify-between
-                  "
-                >
-                  <span
-                    className="
-                      tf-mono
-                      text-[10px]
-                      uppercase
-                      tracking-[0.16em]
-                      text-slate-500
-                    "
-                  >
-                    BUG-17-FIX
-                  </span>
-
-                  <LockKeyhole className="h-4 w-4 text-blue-400" />
-                </div>
-
-                <p
-                  className="
-                    text-sm
-                    leading-6
-                    text-slate-200
-                  "
-                >
-                  Fix BUG-17, run CI, and create a pull request.
-                </p>
-              </div>
-
-              {/* Capability boundary */}
-              <div className="p-5">
-                <div
-                  className="
-                    mb-4
-                    flex items-center justify-between
-                  "
-                >
-                  <p
-                    className="
-                      text-xs
-                      font-medium
-                      text-slate-300
-                    "
-                  >
-                    Capability Boundary
-                  </p>
-
-                  <span
-                    className="
-                      tf-mono
-                      text-[10px]
-                      text-slate-500
-                    "
-                  >
-                    6 / 11 GRANTED
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {grantedCapabilities.map((capability) => (
-                    <div
-                      key={capability}
-                      className="
-                        flex items-center justify-between
-                        rounded-lg
-                        border border-emerald-400/[0.09]
-                        bg-emerald-400/[0.035]
-                        px-3 py-2
-                      "
-                    >
-                      <span className="tf-mono text-[11px] text-slate-300">
-                        {capability}
-                      </span>
-
-                      <span className="flex items-center gap-1.5">
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
-
-                        <span
-                          className="
-                            tf-mono
-                            text-[9px]
-                            text-emerald-400
-                          "
-                        >
-                          ALLOW
-                        </span>
-                      </span>
-                    </div>
-                  ))}
-
-                  {blockedCapabilities.map((capability) => (
-                    <div
-                      key={capability}
-                      className="
-                        flex items-center justify-between
-                        rounded-lg
-                        border border-red-400/[0.08]
-                        bg-red-400/[0.025]
-                        px-3 py-2
-                      "
-                    >
-                      <span className="tf-mono text-[11px] text-slate-500">
-                        {capability}
-                      </span>
-
-                      <span className="flex items-center gap-1.5">
-                        <X className="h-3.5 w-3.5 text-red-400" />
-
-                        <span
-                          className="
-                            tf-mono
-                            text-[9px]
-                            text-red-400
-                          "
-                        >
-                          DENY
-                        </span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Footer status */}
-              <div
-                className="
-                  flex items-center justify-between
-                  border-t border-white/[0.07]
-                  bg-black/10
-                  px-5 py-3
-                "
-              >
-                <span
-                  className="
-                    tf-mono
-                    text-[9px]
-                    uppercase
-                    tracking-[0.12em]
-                    text-slate-600
-                  "
-                >
-                  deterministic authorization
-                </span>
-
-                <span
-                  className="
-                    tf-mono
-                    text-[10px]
-                    text-blue-400
-                  "
-                >
-                  45.45% less privilege
-                </span>
-              </div>
-            </div>
-
-            {/* Floating deny card */}
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: 12,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                delay: 0.55,
-                duration: 0.4,
-              }}
-              className="
-                absolute
-                -bottom-8
-                -left-5
-                hidden
-                w-[245px]
-                rounded-xl
-                border border-red-400/15
-                bg-[#0b111b]/95
-                p-3.5
-                shadow-2xl
-                backdrop-blur-xl
-                sm:block
-              "
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="
-                    mt-0.5
-                    flex h-7 w-7
-                    shrink-0
-                    items-center justify-center
-                    rounded-lg
-                    bg-red-400/[0.08]
-                  "
-                >
-                  <X className="h-3.5 w-3.5 text-red-400" />
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="tf-mono text-[10px] text-slate-300">
-                      secret.read
-                    </span>
-
-                    <span className="tf-mono text-[9px] text-red-400">
-                      DENY
-                    </span>
-                  </div>
-
-                  <p className="mt-1 text-[10px] leading-4 text-slate-500">
-                    TOOL_NOT_GRANTED · NOT_EXECUTED
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+            Repository
+          </a>
         </div>
+
+        <dl className="mt-12 grid grid-cols-3 divide-x divide-line border-t border-line pt-6">
+          {STATS.map((stat) => (
+            <div key={stat.label} className="px-5 first:pl-0">
+              <dt className="sr-only">{stat.label}</dt>
+
+              <dd>
+                <span className="block text-2xl font-semibold tracking-tight text-ink">
+                  {stat.value}
+                </span>
+
+                <span className="mt-1.5 block text-[12px] leading-4 text-ink-muted">
+                  {stat.label}
+                </span>
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
+
+      <Panel
+        title="Live decision"
+        action={<Badge tone="accent">policy active</Badge>}
+      >
+        <ul>
+          {LOG_ROWS.map((row) => (
+            <li
+              key={row.request}
+              className="flex items-center justify-between gap-4 border-b border-line py-2.5 last:border-0"
+            >
+              <span className="truncate font-mono text-[12px] text-ink-soft">
+                {row.request}
+              </span>
+
+              <Badge tone={row.allowed ? "allow" : "deny"}>
+                {row.allowed ? "allow" : "deny"}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-3 font-mono text-[12px] leading-5 text-deny">
+          reason_code: TOOL_NOT_GRANTED
+          <br />
+          execution_status: NOT_EXECUTED
+        </p>
+
+        <p className="mt-3 border-t border-line pt-3 text-[13px] leading-5 text-ink-muted">
+          The secret backend was never invoked — ToolFence
+          denied the request before execution.
+        </p>
+      </Panel>
     </section>
   )
 }

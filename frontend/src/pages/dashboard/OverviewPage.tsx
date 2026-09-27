@@ -3,64 +3,34 @@
 import { SecurityFlow } from "@/components/dashboard/SecurityFlow"
 import { TaskOverview } from "@/components/dashboard/TaskOverview"
 import { SectionHeading } from "@/components/shared/SectionHeading"
+import { Stat } from "@/components/ui/Stat"
+import {
+  countDecisions,
+  countExecutions,
+  latestOf,
+  policyEvents,
+} from "@/lib/policy"
 import type { DashboardContextValue } from "@/pages/dashboard/DashboardLayout"
 
-
 export function OverviewPage() {
-  const {
-    task,
-    policy,
-    capabilities,
-    audit,
-  } = useOutletContext<DashboardContextValue>()
+  const { task, policy, capabilities, audit } =
+    useOutletContext<DashboardContextValue>()
 
-  if (
-    !task ||
-    !policy ||
-    !capabilities ||
-    !audit
-  ) {
+  if (!task || !policy || !capabilities || !audit) {
     return null
   }
 
-  const currentPolicyEvents =
-    audit.events.filter(
-      (event) =>
-        event.taskId === task.taskId &&
-        event.policyId === policy.policyId,
-    )
+  const events = policyEvents(
+    audit.events,
+    task.taskId,
+    policy.policyId,
+  )
 
-  const successfulExecutions =
-    currentPolicyEvents.filter(
-      (event) =>
-        event.decision === "ALLOW" &&
-        event.executionStatus === "SUCCEEDED",
-    ).length
+  const successfulExecutions = countExecutions(events)
 
-  const deniedRequests =
-    currentPolicyEvents.filter(
-      (event) =>
-        event.decision === "DENY",
-    ).length
+  const deniedRequests = countDecisions(events, "DENY")
 
-  const latestEvent =
-    currentPolicyEvents[
-      currentPolicyEvents.length - 1
-    ]
-
-  const latestDecision =
-    latestEvent?.decision ??
-    "ALLOW"
-
-  const latestTool =
-    latestEvent?.tool ??
-    policy.grants[0]?.tool ??
-    "ticket.get"
-
-  const latestResource =
-    latestEvent?.resource ??
-    policy.grants[0]?.resource ??
-    "—"
+  const latest = latestOf(events)
 
   return (
     <>
@@ -74,116 +44,58 @@ export function OverviewPage() {
           capabilities.privilegeReductionPercent
         }
         result="Live ToolFence runtime"
-        resultDetail={
-          `${successfulExecutions} successful executions · ` +
-          `${deniedRequests} denied requests`
-        }
+        resultDetail={`${successfulExecutions} successful executions · ${deniedRequests} denied requests`}
       />
 
       <div className="mt-8">
         <SectionHeading
           eyebrow="Runtime state"
           title="Latest protected request"
-          description="A live view of the most recent protected tool request recorded for the currently active ToolFence policy."
+          description="The most recent protected tool request recorded for the active ToolFence policy."
         />
 
         <div className="mt-5">
           <SecurityFlow
-            decision={latestDecision}
-            tool={latestTool}
-            resource={latestResource}
+            decision={latest?.decision ?? "ALLOW"}
+            tool={
+              latest?.tool ??
+              policy.grants[0]?.tool ??
+              "ticket.get"
+            }
+            resource={
+              latest?.resource ??
+              policy.grants[0]?.resource ??
+              "—"
+            }
           />
         </div>
       </div>
 
-      <div
-        className="
-          mt-8
-          grid gap-4
-          sm:grid-cols-2
-          xl:grid-cols-4
-        "
-      >
-        <OverviewMetric
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Stat
           label="Policy state"
           value={policy.status}
           detail="Current lifecycle state"
         />
 
-        <OverviewMetric
+        <Stat
           label="Granted"
           value={`${capabilities.granted}/${capabilities.total}`}
           detail="Protected capabilities"
         />
 
-        <OverviewMetric
+        <Stat
           label="Privilege reduction"
           value={`${capabilities.privilegeReductionPercent}%`}
           detail="Capabilities excluded"
         />
 
-        <OverviewMetric
+        <Stat
           label="Audit evidence"
-          value={String(currentPolicyEvents.length)}
+          value={String(events.length)}
           detail="Events for this policy"
         />
       </div>
     </>
-  )
-}
-
-
-function OverviewMetric({
-  label,
-  value,
-  detail,
-}: {
-  label: string
-  value: string
-  detail: string
-}) {
-  return (
-    <div
-      className="
-        rounded-xl
-        border border-white/[0.06]
-        bg-white/[0.02]
-        p-5
-      "
-    >
-      <p
-        className="
-          tf-mono
-          text-[9px]
-          uppercase
-          tracking-[0.14em]
-          text-slate-600
-        "
-      >
-        {label}
-      </p>
-
-      <p
-        className="
-          mt-3
-          text-2xl
-          font-semibold
-          tracking-tight
-          text-slate-100
-        "
-      >
-        {value}
-      </p>
-
-      <p
-        className="
-          mt-1
-          text-xs
-          text-slate-600
-        "
-      >
-        {detail}
-      </p>
-    </div>
   )
 }

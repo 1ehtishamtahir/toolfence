@@ -2,82 +2,56 @@
 
 import { AuditTable } from "@/components/dashboard/AuditTable"
 import { SectionHeading } from "@/components/shared/SectionHeading"
+import { Stat } from "@/components/ui/Stat"
+import {
+  countDecisions,
+  policyEvents,
+  taskEvents as filterTaskEvents,
+  toExecutionState,
+} from "@/lib/policy"
 import type { DashboardContextValue } from "@/pages/dashboard/DashboardLayout"
 
-
-function toAuditExecutionStatus(
-  status: string,
-): "EXECUTED" | "NOT_EXECUTED" | "FAILED" {
-  if (status === "SUCCEEDED") {
-    return "EXECUTED"
-  }
-
-  if (status === "FAILED") {
-    return "FAILED"
-  }
-
-  return "NOT_EXECUTED"
-}
-
-
 export function AuditPage() {
-  const {
-    task,
-    policy,
-    audit,
-  } = useOutletContext<DashboardContextValue>()
+  const { task, policy, audit } =
+    useOutletContext<DashboardContextValue>()
 
-  if (
-    !task ||
-    !policy ||
-    !audit
-  ) {
+  if (!task || !policy || !audit) {
     return null
   }
 
-  const taskEvents =
-    audit.events.filter(
-      (event) =>
-        event.taskId === task.taskId,
-    )
+  const allTaskEvents = filterTaskEvents(
+    audit.events,
+    task.taskId,
+  )
 
-  const currentPolicyEvents =
-    taskEvents.filter(
-      (event) =>
-        event.policyId === policy.policyId,
-    )
+  const currentPolicy = policyEvents(
+    audit.events,
+    task.taskId,
+    policy.policyId,
+  )
 
-  const auditEvents =
-    [...taskEvents]
-      .reverse()
-      .map((event) => ({
-        eventId: event.eventId,
-        tool: event.tool,
-        resource: event.resource,
-        decision: event.decision,
-        reasonCode: event.reasonCode,
-        executionStatus:
-          toAuditExecutionStatus(
-            event.executionStatus,
-          ),
-        policyId:
-          event.policyId ?? "—",
-      }))
+  const rows = [...allTaskEvents].reverse().map((event) => ({
+    eventId: event.eventId,
+    tool: event.tool,
+    resource: event.resource,
+    decision: event.decision,
+    reasonCode: event.reasonCode,
+    executionStatus: toExecutionState(
+      event.executionStatus,
+    ),
+    policyId: event.policyId ?? "—",
+    timestamp: event.timestamp,
+  }))
 
-  const allowedCount =
-    taskEvents.filter(
-      (event) =>
-        event.decision === "ALLOW",
-    ).length
+  const allowedCount = countDecisions(
+    allTaskEvents,
+    "ALLOW",
+  )
 
-  const deniedCount =
-    taskEvents.filter(
-      (event) =>
-        event.decision === "DENY",
-    ).length
-
-  const currentPolicyCount =
-    currentPolicyEvents.length
+  const deniedCount = countDecisions(
+    allTaskEvents,
+    "DENY",
+  )
 
   return (
     <>
@@ -87,123 +61,42 @@ export function AuditPage() {
         description="Append-only authorization evidence for ToolFence-protected requests. ALLOW and DENY decisions remain separate from backend execution status."
       />
 
-      <div
-        className="
-          mt-5
-          grid gap-4
-          sm:grid-cols-2
-          xl:grid-cols-4
-        "
-      >
-        <AuditMetric
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Stat
           label="Task events"
-          value={String(taskEvents.length)}
+          value={String(allTaskEvents.length)}
           detail={`All evidence for ${task.taskId}`}
         />
 
-        <AuditMetric
+        <Stat
           label="Current policy"
-          value={String(currentPolicyCount)}
+          value={String(currentPolicy.length)}
           detail="Events matching active policy ID"
         />
 
-        <AuditMetric
+        <Stat
           label="Allowed"
           value={String(allowedCount)}
           detail="Requests authorized"
         />
 
-        <AuditMetric
+        <Stat
           label="Denied"
           value={String(deniedCount)}
-          detail="Requests blocked before execution"
+          detail="Blocked before execution"
         />
       </div>
 
       <div className="mt-8">
-        <AuditTable
-          events={auditEvents}
-        />
+        <AuditTable events={rows} />
       </div>
 
-      <div
-        className="
-          mt-6
-          rounded-xl
-          border border-white/[0.05]
-          bg-white/[0.015]
-          px-4 py-3
-        "
-      >
-        <p
-          className="
-            text-xs
-            leading-5
-            text-slate-600
-          "
-        >
-          Audit history may include earlier policy instances and deny-by-default
-          events for the same task. The active policy is identified independently
-          by its current policy ID.
-        </p>
-      </div>
+      <p className="mt-5 text-[12px] leading-5 text-ink-muted">
+        Audit history may include earlier policy instances and
+        deny-by-default events for the same task. The active
+        policy is identified independently by its current
+        policy ID.
+      </p>
     </>
-  )
-}
-
-
-function AuditMetric({
-  label,
-  value,
-  detail,
-}: {
-  label: string
-  value: string
-  detail: string
-}) {
-  return (
-    <div
-      className="
-        rounded-xl
-        border border-white/[0.06]
-        bg-white/[0.02]
-        p-5
-      "
-    >
-      <p
-        className="
-          tf-mono
-          text-[9px]
-          uppercase
-          tracking-[0.14em]
-          text-slate-600
-        "
-      >
-        {label}
-      </p>
-
-      <p
-        className="
-          mt-3
-          text-2xl
-          font-semibold
-          tracking-tight
-          text-slate-100
-        "
-      >
-        {value}
-      </p>
-
-      <p
-        className="
-          mt-1
-          text-xs
-          leading-5
-          text-slate-600
-        "
-      >
-        {detail}
-      </p>
-    </div>
   )
 }

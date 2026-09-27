@@ -31,6 +31,9 @@ include = [
 ]
 namespaces = false
 
+[tool.vercel]
+entrypoint = "app.api.main:app"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers --strict-config"

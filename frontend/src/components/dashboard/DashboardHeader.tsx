@@ -1,125 +1,58 @@
-﻿import { Link } from "react-router-dom"
-import {
-  ArrowLeft,
-  ShieldCheck,
-} from "lucide-react"
+﻿import { Menu } from "lucide-react"
+
+import { Badge } from "@/components/ui/Badge"
+import { statusTone } from "@/lib/policy"
+import type { PolicyLifecycleStatus } from "@/types/api"
 
 type DashboardHeaderProps = {
   taskId: string
-  policyStatus: string
+  policyStatus: PolicyLifecycleStatus
+  onOpenMenu: () => void
 }
 
 export function DashboardHeader({
   taskId,
   policyStatus,
+  onOpenMenu,
 }: DashboardHeaderProps) {
-  const active =
-    policyStatus.toUpperCase() === "ACTIVE"
-
   return (
-    <header
-      className="
-        sticky top-0 z-30
-        flex min-h-16
-        items-center justify-between
-        border-b border-white/[0.06]
-        bg-[#070b12]/90
-        px-4
-        backdrop-blur-xl
-        sm:px-6
-      "
-    >
-      <div className="flex items-center gap-4">
-        <Link
-          to="/"
-          className="
-            inline-flex h-9 w-9
-            items-center justify-center
-            rounded-lg
-            border border-white/[0.06]
-            bg-white/[0.02]
-            text-slate-500
-            transition
-            hover:border-white/[0.12]
-            hover:bg-white/[0.04]
-            hover:text-white
-            lg:hidden
-          "
-          aria-label="Back to ToolFence landing page"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-page px-4 sm:px-6">
+      <button
+        type="button"
+        onClick={onOpenMenu}
+        aria-label="Open navigation"
+        className="
+          -ml-1 flex h-9 w-9 items-center
+          justify-center rounded-lg text-ink-soft
+          transition-colors hover:bg-raised hover:text-ink
+          lg:hidden
+        "
+      >
+        <Menu className="h-4 w-4" />
+      </button>
 
-        <div>
-          <p
-            className="
-              tf-mono
-              text-[9px]
-              uppercase
-              tracking-[0.16em]
-              text-slate-600
-            "
-          >
-            Current task
-          </p>
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="tf-label hidden sm:inline">
+          Task
+        </span>
 
-          <p className="mt-1 text-sm font-medium text-slate-200">
-            {taskId}
-          </p>
-        </div>
+        <span className="truncate font-mono text-[13px] text-ink">
+          {taskId}
+        </span>
+
+        <span
+          aria-hidden="true"
+          className="hidden h-3.5 w-px bg-line sm:block"
+        />
+
+        <Badge tone={statusTone(policyStatus)}>
+          {policyStatus}
+        </Badge>
       </div>
 
-      <div
-        className={`
-          inline-flex
-          items-center gap-2
-          rounded-full
-          border
-          px-3 py-1.5
-          ${
-            active
-              ? "border-emerald-400/15 bg-emerald-400/[0.06]"
-              : "border-amber-400/15 bg-amber-400/[0.06]"
-          }
-        `}
-      >
-        <ShieldCheck
-          className={`
-            h-3.5 w-3.5
-            ${
-              active
-                ? "text-emerald-400"
-                : "text-amber-400"
-            }
-          `}
-        />
-
-        <span
-          className={`
-            h-1.5 w-1.5
-            rounded-full
-            ${
-              active
-                ? "bg-emerald-400 shadow-[0_0_8px_rgba(74,222,128,0.75)]"
-                : "bg-amber-400"
-            }
-          `}
-        />
-
-        <span
-          className={`
-            tf-mono
-            text-[9px]
-            uppercase
-            tracking-[0.12em]
-            ${
-              active
-                ? "text-emerald-300"
-                : "text-amber-300"
-            }
-          `}
-        >
-          Policy {policyStatus}
+      <div className="ml-auto hidden items-center gap-2 sm:flex">
+        <span className="tf-label">
+          Observability · read-only
         </span>
       </div>
     </header>
