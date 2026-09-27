@@ -16,6 +16,7 @@ from app.api.routes import (
 
 
 DEFAULT_CORS_ORIGINS = [
+    "https://toolfence.netlify.app",
     "http://127.0.0.1:5173",
     "http://localhost:5173",
 ]
@@ -24,7 +25,8 @@ DEFAULT_CORS_ORIGINS = [
 def get_cors_origins() -> list[str]:
     """
     Comma-separated origins via TOOLFENCE_CORS_ORIGINS, e.g. the
-    deployed Netlify site. Local dev origins are the default.
+    deployed Netlify site. Configured origins extend the defaults
+    (local dev + deployed frontend).
     """
 
     configured = os.getenv(
@@ -32,13 +34,13 @@ def get_cors_origins() -> list[str]:
         "",
     )
 
-    origins = [
+    origins = {
         origin.strip()
         for origin in configured.split(",")
         if origin.strip()
-    ]
+    }
 
-    return origins or DEFAULT_CORS_ORIGINS
+    return sorted(origins | set(DEFAULT_CORS_ORIGINS))
 
 
 app = FastAPI(
