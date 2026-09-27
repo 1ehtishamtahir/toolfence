@@ -531,7 +531,7 @@ ToolFence is deployed as two independently hosted services.
 | Service | Host | URL |
 |---|---|---|
 | Frontend (React) | **Netlify** | <https://stunning-sfogliatella-cb2a5b.netlify.app/> |
-| Observability API (FastAPI) | **Vercel** | <https://toolfence-7cy4-isuk25ybf-1ehtishamtahir-7813s-projects.vercel.app> |
+| Observability API (FastAPI) | **Vercel** | <https://toolfence-7cy4.vercel.app> |
 
 </div>
 
